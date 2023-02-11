@@ -133,7 +133,7 @@ namespace ProductMVC1.Controllers
                 return NotFound();
             }
 
-            var category = _categoryService.GetCategoryByIdAsync(id.Value);
+            var category = await _categoryService.GetCategoryByIdAsync(id.Value);
             if (category == null)
             {
                 return NotFound();

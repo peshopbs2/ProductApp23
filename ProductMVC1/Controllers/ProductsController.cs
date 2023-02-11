@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol.Core.Types;
 using ProductMVC1.Data;
+using ProductMVC1.Models.ViewModels.Products;
 using ProductMVC1.Services;
 
 namespace ProductMVC1.Controllers
@@ -41,7 +43,7 @@ namespace ProductMVC1.Controllers
                 return NotFound();
             }
 
-            var product = await _productService.GetProductByIdAsync(id.Value);
+            var product = await _productService.GetProductDetailsByIdAsync(id.Value);
             if (product == null)
             {
                 return NotFound();
@@ -55,9 +57,8 @@ namespace ProductMVC1.Controllers
         public async Task<IActionResult> Create()
         {
             ViewData["Categories"] = new SelectList(await _categoryService.GetAllCategorysAsync(), "Id", "Title");
-            ViewData["CreatedById"] = new SelectList(_userManager.Users, "Id", "Id");
-            ViewData["ModifiedById"] = new SelectList(_userManager.Users, "Id", "Id");
-            return View();
+
+            return View(new ProductViewModel());
         }
 
         // POST: Products/Create
@@ -66,25 +67,16 @@ namespace ProductMVC1.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Title,Description,Price,Id,Created,Modified,CreatedById,ModifiedById")] Product product, [Bind("Categories")] List<int> categories)
+        public async Task<IActionResult> Create([FromForm] ProductViewModel product)
         {
             if (ModelState.IsValid)
             {
-                if (categories == null)
-                {
-                    product.Categories = new HashSet<Category>();
-                }
-                else
-                {
-                    product.Categories = categories
-                        .Select(categoryId => _categoryService.GetCategoryByIdAsync(categoryId).Result)
-                        .ToList();
-                }
-                await _productService.CreateAsync(product);
+                string userId = (await _userManager.FindByNameAsync(User.Identity.Name)).Id;
+
+                await _productService.CreateAsync(product, userId);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CreatedById"] = new SelectList(_userManager.Users, "Id", "Id", product.CreatedById);
-            ViewData["ModifiedById"] = new SelectList(_userManager.Users, "Id", "Id", product.ModifiedById);
+
             return View(product);
         }
 
@@ -98,12 +90,11 @@ namespace ProductMVC1.Controllers
             }
 
             var product = await _productService.GetProductByIdAsync(id.Value);
+            ViewData["Categories"] = new SelectList(await _categoryService.GetAllCategorysAsync(), "Id", "Title");
             if (product == null)
             {
                 return NotFound();
             }
-            ViewData["CreatedById"] = new SelectList(_userManager.Users, "Id", "Id", product.CreatedById);
-            ViewData["ModifiedById"] = new SelectList(_userManager.Users, "Id", "Id", product.ModifiedById);
             return View(product);
         }
 
@@ -113,7 +104,7 @@ namespace ProductMVC1.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Title,Description,Price,Id,Created,Modified,CreatedById,ModifiedById")] Product product)
+        public async Task<IActionResult> Edit(int id, [FromForm] ProductViewModel product)
         {
             if (id != product.Id)
             {
@@ -124,7 +115,8 @@ namespace ProductMVC1.Controllers
             {
                 try
                 {
-                    await _productService.UpdateAsync(product);
+                    string userId = (await _userManager.FindByNameAsync(User.Identity.Name)).Id;
+                    await _productService.UpdateAsync(product, userId);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -139,8 +131,7 @@ namespace ProductMVC1.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CreatedById"] = new SelectList(_userManager.Users, "Id", "Id", product.CreatedById);
-            ViewData["ModifiedById"] = new SelectList(_userManager.Users, "Id", "Id", product.ModifiedById);
+
             return View(product);
         }
 
@@ -153,7 +144,7 @@ namespace ProductMVC1.Controllers
                 return NotFound();
             }
 
-            var product = await _productService.GetProductByIdAsync(id.Value);
+            var product = await _productService.GetProductDetailsByIdAsync(id.Value);
             if (product == null)
             {
                 return NotFound();

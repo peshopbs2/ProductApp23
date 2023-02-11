@@ -4,11 +4,11 @@
     {
         public Product()
         {
-            Categories = new HashSet<Category>();
+            CategoryProducts = new HashSet<CategoryProduct>();
         }
         public string Title { get; set; }
         public string Description { get; set; }
         public double Price { get; set; }
-        public virtual ICollection<Category> Categories { get; set; }
+        public virtual ICollection<CategoryProduct> CategoryProducts { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ProductMVC1.Data.Product>
+﻿@model IEnumerable<ProductMVC1.Models.ViewModels.Products.ProductDetailsViewModel>
 
 @{
     ViewData["Title"] = "Index";
@@ -28,10 +28,10 @@
                 @Html.DisplayNameFor(model => model.Modified)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreatedBy)
+                @Html.DisplayNameFor(model => model.CreatedByName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ModifiedBy)
+                @Html.DisplayNameFor(model => model.ModifiedByName)
             </th>
             <th></th>
         </tr>
@@ -55,10 +55,10 @@
                 @Html.DisplayFor(modelItem => item.Modified)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CreatedBy.Id)
+                @Html.DisplayFor(modelItem => item.CreatedByName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ModifiedBy.Id)
+                @Html.DisplayFor(modelItem => item.ModifiedByName)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

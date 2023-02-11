@@ -4,9 +4,9 @@
     {
         public Category()
         {
-            Products = new HashSet<Product>();
+            CategoryProducts = new HashSet<CategoryProduct>();
         }
         public string Title { get; set; }
-        public virtual ICollection<Product> Products { get; set; }
+        public virtual ICollection<CategoryProduct> CategoryProducts { get; set; }
     }
 }
